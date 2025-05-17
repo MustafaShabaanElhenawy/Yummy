@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meal Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #0D0D0D;
+      color: white;
+      overflow-x: hidden;
+      margin-left: 90px;
+      padding-top: 0px;
+    }
+    img {
+      width: 100%;
+      height: 300px;
+      border-radius: 10px;
+    }
+    .tag {
+      background-color: #f1f1f1;
+      color: black;
+      padding: 5px 10px;
+      border-radius: 5px;
+      margin: 5px;
+      display: inline-block;
+    }
+    .sidenav {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: 260px;
+      height: 100vh;
+      background-color: #111;
+      padding-top: 60px;
+      transition: 0.4s ease;
+      z-index: 1001;
+    }
+    .sidenav.open {
+      left: 0;
+    }
+    .sidenav a {
+      padding: 12px 20px;
+      display: block;
+      color: white;
+      text-decoration: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+    }
+    .sidenav.open a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .sidenav a:nth-child(1) { transition-delay: 0.1s; }
+    .sidenav a:nth-child(2) { transition-delay: 0.2s; }
+    .sidenav a:nth-child(3) { transition-delay: 0.3s; }
+    .sidenav a:nth-child(4) { transition-delay: 0.4s; }
+    .sidenav a:nth-child(5) { transition-delay: 0.5s; }
+    .sidenav-footer {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      color: white;
+      font-size: 14px;
+    }
+    .sidenav-footer i {
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 80px;
+      height: 100vh;
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 1002;
+      padding: 20px 0;
+      transition: left 0.4s ease;
+    }
+    .sidebar.open {
+      left: 250px;
+    }
+    .sidebar-logo img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      margin-bottom: 16px;
+    }
+    .menu-toggle {
+      font-size: 35px;
+      color: black;
+      cursor: pointer;
+    }
+    .icons-bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .icons-bottom i {
+      color: black;
+      cursor: pointer;
+    }
+.tag {
+  background-color: #CFF4FC;
+  color: black;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 14px;
+  display: inline-block;
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Sidenav -->
+  <div class="sidenav" id="sideNav">
+    <a href="search.html">Search</a>
+    <a href="categories.html">Categories</a>
+    <a href="area.html">Area</a>
+   <a href="ingredients.html">Ingredients</a>
+    <a href="contactus.html">Contact Us</a>
+    <div class="sidenav-footer">
+      <div class="mb-2">
+        <i class="fab fa-facebook-f"></i>
+        <i class="fab fa-twitter"></i>
+        <i class="fas fa-globe"></i>
+      </div>
+      <div>Copyright © 2019</div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sideBar">
+    <div class="sidebar-logo">
+   <img src="./images/logo.png" alt="yummey Logo" />
+    </div>
+    <div class="menu-toggle" id="menuIcon">
+      <i class="fas fa-bars"></i>
+    </div>
+    <div class="icons-bottom">
+      <i class="fas fa-globe"></i>
+      <i class="fas fa-share-nodes"></i>
+    </div>
+  </div>
+
+  <div class="container" id="detailsContainer"></div>
+
+  <script>
+    // Sidebar toggle
+    const menuIcon = document.getElementById("menuIcon");
+    const sideNav = document.getElementById("sideNav");
+    const sideBar = document.getElementById("sideBar");
+    let isOpen = false;
+
+    menuIcon.addEventListener("click", () => {
+      isOpen = !isOpen;
+      sideNav.classList.toggle("open");
+      sideBar.classList.toggle("open");
+      menuIcon.innerHTML = isOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+    });
+
+    // Get ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const mealID = urlParams.get('id');
+
+    async function getMealDetails(id) {
+      try {
+        const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
+        const data = await res.json();
+        if (!data.meals || data.meals.length === 0) {
+          displayNotFound();
+        } else {
+          displayMealDetails(data.meals[0]);
+        }
+      } catch (err) {
+        displayNotFound();
+      }
+    }
+
+//     function displayMealDetails(meal) {
+//       const container = document.getElementById("detailsContainer");
+//       let ingredients = "";
+//       for (let i = 1; i <= 20; i++) {
+//         const ingredient = meal[`strIngredient${i}`];
+//         const measure = meal[`strMeasure${i}`];
+//         if (ingredient && ingredient.trim()) {
+//           ingredients += `<li>${measure ? measure : ""} ${ingredient}</li>`;
+//         }
+//       }
+
+//       let tags = "";
+//       if (meal.strTags) {
+//         tags = meal.strTags.split(",").map(tag => `<span class="tag">${tag}</span>`).join("");
+//       }
+
+  
+//       container.innerHTML = `
+//   <div class="d-flex gap-4 py-5">
+//     <div style="min-width: 320px; flex-shrink: 0;">
+//       <img src="${meal.strMealThumb}" alt="${meal.strMeal}" style="border-radius:10px; width: 100%; max-width: 320px;"/>
+//       <h3 class="mt-3">${meal.strMeal}</h3>
+//     </div>
+//     <div style="flex-grow: 1; color: white;">
+//       <h2>Instructions</h2>
+//       <p style="white-space: pre-line;">${meal.strInstructions}</p>
+//       <h5><strong>Area:</strong> ${meal.strArea}</h5>
+//       <h5><strong>Category:</strong> ${meal.strCategory}</h5>
+//       <h5><strong>Recipes:</strong></h5>
+//       <ul>${ingredients}</ul>
+//       <h5><strong>Tags:</strong></h5>
+//       ${tags || '<p>None</p>'}
+//       <div class="mt-3">
+//         ${meal.strSource ? `<a class="btn btn-success me-2" target="_blank" href="${meal.strSource}">Source</a>` : ""}
+//         ${meal.strYoutube ?` <a class="btn btn-danger" target="_blank" href="${meal.strYoutube}">YouTube</a>` : ""}
+//       </div>
+//     </div>
+//   </div>
+// `;
+//     }
+
+
+
+function displayMealDetails(meal) {
+  const container = document.getElementById("detailsContainer");
+  let ingredients = "";
+  for (let i = 1; i <= 20; i++) {
+    const ingredient = meal[`strIngredient${i}`];
+    const measure = meal[`strMeasure${i}`];
+    if (ingredient && ingredient.trim()) {
+      ingredients += `<span class="tag">${measure ? measure : ""} ${ingredient}</span>`;
+    }
+  }
+
+  let tags = "";
+  if (meal.strTags) {
+    tags = meal.strTags.split(",").map(tag => `<span class="tag">${tag}</span>`).join("");
+  }
+
+  container.innerHTML = `
+    <div class="d-flex gap-4 py-5">
+      <div style="min-width: 320px; flex-shrink: 0;">
+        <img src="${meal.strMealThumb}" alt="${meal.strMeal}" style="border-radius:10px; width: 100%; max-width: 320px;"/>
+        <h3 class="mt-3">${meal.strMeal}</h3>
+      </div>
+      <div style="flex-grow: 1; color: white;">
+        <h2>Instructions</h2>
+        <p style="white-space: pre-line;">${meal.strInstructions}</p>
+        <h5><strong>Area:</strong> ${meal.strArea}</h5>
+        <h5><strong>Category:</strong> ${meal.strCategory}</h5>
+        <h5><strong>Recipes:</strong></h5>
+        <div class="d-flex flex-wrap gap-2 mb-3">${ingredients}</div>
+        <h5><strong>Tags:</strong></h5>
+        ${tags || '<p>None</p>'}
+        <div class="mt-3">
+          ${meal.strSource ? `<a class="btn btn-success me-2" target="_blank" href="${meal.strSource}">Source</a>` : ""}
+          ${meal.strYoutube ?` <a class="btn btn-danger" target="_blank" href="${meal.strYoutube}">YouTube</a>` : ""}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+    function displayNotFound() {
+      document.getElementById("detailsContainer").innerHTML = `
+        <div class="alert alert-danger mt-5">Meal not found. Please check the meal ID.</div>
+      `;
+    }
+
+    if (mealID) {
+      getMealDetails(mealID);
+    } else {
+      displayNotFound();
+    }
+  </script>
+</body>
+</html>
