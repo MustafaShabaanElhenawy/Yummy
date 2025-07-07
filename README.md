@@ -30,7 +30,7 @@ It features a responsive design, smooth sidebar navigation, and dynamic content 
 
 ---
 
-Contact
+## Contact
 
 - GitHub: https://github.com/MustafaShabaanElhenawy  
 - LinkedIn: www.linkedin.com/in/mustafa-elhenawy-31577b292
