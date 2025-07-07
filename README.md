@@ -1,6 +1,6 @@
 # Yummy
 
-Yummy is a modern food web application that allows users to explore meals by name, category, area, or ingredients using the MealDB API.  
+Yummy is a modern food web application that allows users to explore meals by name, category, area, or ingredients using the MealDB API, 
 It features a responsive design, smooth sidebar navigation, and dynamic content loading.
 
 ---
